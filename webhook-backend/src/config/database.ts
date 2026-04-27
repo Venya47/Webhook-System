@@ -1,10 +1,10 @@
 import { Sequelize } from 'sequelize-typescript';
 import dotenv from 'dotenv';
+dotenv.config();
 import { User } from '../models/User';
 import { Webhook } from '../models/Webhook';
 import { WebhookActivity } from '../models/WebhookActivity';
 
-dotenv.config();
 
 export const sequelize = new Sequelize({
   dialect: 'mysql',

@@ -43,8 +43,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           onClick={() => navigate('/webhooks')}
           style={{ cursor: 'pointer' }}
         >
-          <span style={{ fontSize: 20 }}>⬡</span>
-          Webhook<span>OS</span>
+          
+          Webhook System
         </div>
         <div className="topbar-nav">
           {navItem('Webhooks', '/webhooks')}

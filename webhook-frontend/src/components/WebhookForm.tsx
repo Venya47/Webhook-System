@@ -107,7 +107,8 @@ export default function WebhookForm({ initial, onSubmit, submitLabel, onCancel }
             onChange={e => set('method', e.target.value as HttpMethod)}
           >
             <option value="POST">POST</option>
-            <option value="GET">GET</option>
+            <option value="PUT">PUT</option>
+            <option value="PATCH">PATCH</option>
           </select>
         </div>
       </div>
@@ -124,6 +125,7 @@ export default function WebhookForm({ initial, onSubmit, submitLabel, onCancel }
           <option value="NONE">None</option>
           <option value="BASIC">Basic Auth</option>
           <option value="BEARER">Bearer Token</option>
+           <option value="OAuth">Bearer Token</option>
         </select>
       </div>
 

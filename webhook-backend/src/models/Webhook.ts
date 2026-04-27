@@ -34,7 +34,7 @@ export class Webhook extends Model {
   @Column(DataType.STRING)
   target_url!: string;
 
-  @Column(DataType.ENUM('GET', 'POST'))
+  @Column(DataType.ENUM('POST'))
   method!: HttpMethod;
 
   @Column(DataType.ENUM('NONE', 'BASIC', 'BEARER'))

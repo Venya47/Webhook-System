@@ -28,9 +28,6 @@ export class WebhookActivity extends Model {
   @Column(DataType.INTEGER)
   user_id!: number;
 
-  @BelongsTo(() => User)
-  user!: User;
-
   @ForeignKey(() => Webhook)
   @Column(DataType.INTEGER)
   webhook_id!: number;
