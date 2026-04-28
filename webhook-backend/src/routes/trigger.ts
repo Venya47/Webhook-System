@@ -10,7 +10,7 @@ router.post("/trigger/measurement", async (req, res) => {
 
     const webhooks = await Webhook.findAll({
       where: {
-        event: "measurement"
+        name: "measurement"
       }
     });
 
@@ -22,17 +22,15 @@ router.post("/trigger/measurement", async (req, res) => {
 
     for (const hook of webhooks) {
 
-      //  payload_schema from DB
-      const schema = (hook.payload_schema || {}) as Record<string, string>;
-  
+      // payload_schema from DB (array format)
+      const schema = (hook.payload_schema || []) as Array<{ key: string; type: string; description?: string }>;
 
       const payload: any = {};
 
       // map keys dynamically
-      for (const [outKey, inKey] of Object.entries(schema)) {
-        payload[outKey] = incomingData[inKey as string];
+      for (const field of schema) {
+        payload[field.key] = incomingData[field.key];
       }
-
       // send mapped payload
       try {
     const response = await axios.post(hook.target_url, payload, {
@@ -45,7 +43,7 @@ router.post("/trigger/measurement", async (req, res) => {
     // ✅ SUCCESS LOG
     await WebhookLog.create({
       webhook_id: hook.id,
-      user_id: hook.user_id,   // 🔥 added
+      user_id: hook.user_id,   //added
       measurement_id: req.body.measurement_id,
       system_name: req.body.system_name,
       status: "success",
@@ -57,7 +55,7 @@ router.post("/trigger/measurement", async (req, res) => {
     // ❌ FAILURE LOG
     await WebhookLog.create({
       webhook_id: hook.id,
-      user_id: hook.user_id,   // 🔥 added
+      user_id: hook.user_id,   //added
       measurement_id: req.body.measurement_id,
       system_name:req.body.system_name,
       status: "failed",
