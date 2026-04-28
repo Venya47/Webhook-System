@@ -5,7 +5,7 @@ import { Webhook } from '../models/Webhook';
 
 const router = Router();
 
-router.post("/trigger/measurement", async (req, res) => {
+router.post("/measurement", async (req, res) => {
   try {
 
     const webhooks = await Webhook.findAll({
@@ -40,9 +40,9 @@ router.post("/trigger/measurement", async (req, res) => {
       }
     });
 
-    // ✅ SUCCESS LOG
+    //  SUCCESS LOG
     await WebhookLog.create({
-      webhook_id: hook.id,
+      webhook_id: hook.webhook_id,
       user_id: hook.user_id,   //added
       measurement_id: req.body.measurement_id,
       system_name: req.body.system_name,
@@ -52,9 +52,9 @@ router.post("/trigger/measurement", async (req, res) => {
 
   } catch (err: any) {
 
-    // ❌ FAILURE LOG
+    //  FAILURE LOG
     await WebhookLog.create({
-      webhook_id: hook.id,
+      webhook_id: hook.webhook_id,
       user_id: hook.user_id,   //added
       measurement_id: req.body.measurement_id,
       system_name:req.body.system_name,
@@ -74,5 +74,5 @@ router.post("/trigger/measurement", async (req, res) => {
 });
 
 
-
+export default router;
 

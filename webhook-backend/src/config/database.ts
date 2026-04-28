@@ -4,6 +4,7 @@ dotenv.config();
 import { User } from '../models/User';
 import { Webhook } from '../models/Webhook';
 import { WebhookActivity } from '../models/WebhookActivity';
+import { WebhookLog} from '../models/WebhookLog';
 
 
 export const sequelize = new Sequelize({
@@ -13,6 +14,6 @@ export const sequelize = new Sequelize({
   database: process.env.DB_NAME || 'webhook_db',
   username: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '',
-  models: [User, Webhook, WebhookActivity],
+  models: [User, Webhook, WebhookActivity, WebhookLog],
   logging: false,
 });

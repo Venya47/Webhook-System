@@ -6,6 +6,7 @@ import { sequelize } from './config/database';
 import authRoutes from './routes/auth';
 import webhookRoutes from './routes/webhooks';
 import activityRoutes from './routes/activity';
+import triggerRoutes from './routes/trigger';
 
 dotenv.config();
 
@@ -19,6 +20,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/webhooks', webhookRoutes);
 app.use('/api/activity', activityRoutes);
+app.use('/api/trigger', triggerRoutes);
 
 // Health check
 app.get('/health', (_req, res) => {
