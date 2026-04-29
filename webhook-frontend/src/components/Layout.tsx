@@ -17,18 +17,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     return (
       <button
         onClick={() => navigate(path)}
-        style={{
-          background: active ? 'var(--accent-dim)' : 'transparent',
-          border: active ? '1px solid rgba(91,91,214,0.3)' : '1px solid transparent',
-          color: active ? 'var(--accent)' : 'var(--text-secondary)',
-          borderRadius: 6,
-          padding: '5px 14px',
-          fontSize: 13,
-          fontWeight: 600,
-          cursor: 'pointer',
-          fontFamily: 'var(--font-display)',
-          transition: 'all 0.15s',
-        }}
+        className={`sidebar-link${active ? ' active' : ''}`}
       >
         {label}
       </button>
@@ -37,28 +26,28 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="app-shell">
-      <nav className="topbar">
+      <aside className="sidebar">
         <div
-          className="topbar-logo"
+          className="sidebar-logo"
           onClick={() => navigate('/webhooks')}
           style={{ cursor: 'pointer' }}
         >
-          
           Webhook System
         </div>
-        <div className="topbar-nav">
+        <nav className="sidebar-nav">
           {navItem('Webhooks', '/webhooks')}
           {navItem('Activity', '/activity')}
+        </nav>
+        <div className="sidebar-footer">
           <button
-            className="btn btn-ghost"
+            className="sidebar-link"
             onClick={handleLogout}
-            style={{ fontSize: 12, marginLeft: 8 }}
           >
             Sign Out
           </button>
         </div>
-      </nav>
-      <main style={{ flex: 1 }}>{children}</main>
+      </aside>
+      <main className="main-content">{children}</main>
     </div>
   );
 }
