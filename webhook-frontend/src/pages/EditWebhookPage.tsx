@@ -94,7 +94,7 @@ export default function EditWebhookPage() {
         initial={buildInitial(webhook)}
         submitLabel="Save Changes"
         onSubmit={handleSubmit}
-        onCancel={() => navigate(`/webhooks/${id}`)}
+        onCancel={() => navigate(`/webhooks/${id}}`)}
       />
     </div>
   );

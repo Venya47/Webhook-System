@@ -18,18 +18,31 @@ export default function PreviewWebhookPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    Promise.all([
-      api.get(`/webhooks/${id}`),
-      api.get(`/activity/webhook/${id}`),
-    ])
-      .then(([wRes, aRes]) => {
-        setWebhook(wRes.data);
-        setActivities(aRes.data);
-      })
-      .catch(() => setError('Webhook not found'))
-      .finally(() => setLoading(false));
-  }, [id]);
+  const fetchData = async () => {
+    try {
+      const wRes = await api.get(`/webhooks/${id}`);
+      setWebhook(wRes.data);
+    } catch (err) {
+      console.error(err);
+      setError("Webhook not found");
+      setLoading(false);
+      return;
+    }
 
+    try {
+      const aRes = await api.get(`/activity/webhook/${id}`);
+      setActivities(aRes.data);
+    } catch (err) {
+      console.error("Activity failed:", err);
+      setActivities([]); 
+    }
+
+    setLoading(false);
+  };
+
+  fetchData();
+   }, [id]);
+  
   if (loading) {
     return (
       <div className="main-content" style={{ textAlign: 'center', paddingTop: 80 }}>
