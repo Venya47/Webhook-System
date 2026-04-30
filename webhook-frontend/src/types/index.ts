@@ -5,7 +5,6 @@ export interface Webhook {
   webhook_id: number;
   user_id: number;
   name: string;
-  target_url: string;
   method: HttpMethod;
   auth_type: AuthType;
   auth_config: Record<string, string> | null;
@@ -16,7 +15,6 @@ export interface Webhook {
 
 export interface WebhookFormData {
   name: string;
-  target_url: string;
   method: HttpMethod;
   auth_type: AuthType;
   username?: string;
@@ -37,7 +35,6 @@ export interface WebhookActivity {
   time: string;
   webhook?: {
     name: string;
-    target_url: string;
     method: string;
   };
 }

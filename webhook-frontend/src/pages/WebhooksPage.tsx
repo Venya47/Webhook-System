@@ -60,7 +60,6 @@ export default function WebhooksPage() {
             <thead>
               <tr>
                 <th>Name</th>
-                <th>Target URL</th>
                 <th>Method</th>
                 <th>Auth</th>
                 <th>Created</th>
@@ -71,24 +70,6 @@ export default function WebhooksPage() {
               {webhooks.map(wh => (
                 <tr key={wh.webhook_id}>
                   <td style={{ fontWeight: 600 }}>{wh.name}</td>
-                  <td>
-                    <span
-                      className="preview-mono"
-                      style={{
-                        color: 'var(--text-secondary)',
-                        fontSize: 12,
-                        maxWidth: 240,
-                        display: 'inline-block',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                        verticalAlign: 'middle',
-                      }}
-                      title={wh.target_url}
-                    >
-                      {wh.target_url}
-                    </span>
-                  </td>
                   <td>{methodBadge(wh.method)}</td>
                   <td>{authBadge(wh.auth_type)}</td>
                   <td style={{ color: 'var(--text-muted)', fontSize: 12, fontFamily: 'var(--font-mono)' }}>

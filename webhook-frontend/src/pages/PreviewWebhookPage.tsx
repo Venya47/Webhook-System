@@ -129,12 +129,6 @@ export default function PreviewWebhookPage() {
         {/* Core details */}
         <div className="preview-grid">
           <div className="preview-section">
-            <div className="preview-label">Target URL</div>
-            <div className="preview-value preview-mono" style={{ wordBreak: 'break-all' }}>
-              {webhook.target_url}
-            </div>
-          </div>
-          <div className="preview-section">
             <div className="preview-label">Method</div>
             <div>
               <span className={`badge badge-${webhook.method.toLowerCase()}`}>{webhook.method}</span>

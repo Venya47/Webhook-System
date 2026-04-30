@@ -26,7 +26,6 @@ export default function EditWebhookPage() {
 
     const payload = {
       name: data.name,
-      target_url: data.target_url,
       method: data.method,
       auth_type: data.auth_type,
       username: data.username,
@@ -44,7 +43,6 @@ export default function EditWebhookPage() {
 
   const buildInitial = (wh: Webhook): Partial<WebhookFormData> => ({
     name: wh.name,
-    target_url: wh.target_url,
     method: wh.method,
     auth_type: wh.auth_type,
     headers: wh.headers
@@ -94,7 +92,7 @@ export default function EditWebhookPage() {
         initial={buildInitial(webhook)}
         submitLabel="Save Changes"
         onSubmit={handleSubmit}
-        onCancel={() => navigate(`/webhooks/${id}}`)}
+        onCancel={() => navigate(`/webhooks/${id}`)}
       />
     </div>
   );

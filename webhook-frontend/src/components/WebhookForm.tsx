@@ -13,7 +13,6 @@ interface Props {
 
 const defaultForm: WebhookFormData = {
   name: '',
-  target_url: '',
   method: 'POST',
   auth_type: 'NONE',
   username: '',
@@ -50,8 +49,8 @@ export default function WebhookForm({ initial, onSubmit, submitLabel, onCancel }
   };
 
   const handleSubmit = async () => {
-    if (!form.name || !form.target_url) {
-      setError('Name and Target URL are required');
+    if (!form.name ) {
+      setError('Unique  Name  required');
       return;
     }
     if (form.auth_type === 'BASIC' && (!form.username || !form.password)) {
@@ -90,15 +89,6 @@ export default function WebhookForm({ initial, onSubmit, submitLabel, onCancel }
       </div>
 
       <div className="form-row">
-        <div className="form-group">
-          <label className="form-label">Target URL</label>
-          <input
-            className="form-input"
-            placeholder="https://api.example.com/hook"
-            value={form.target_url}
-            onChange={e => set('target_url', e.target.value)}
-          />
-        </div>
         <div className="form-group">
           <label className="form-label">HTTP Method</label>
           <select

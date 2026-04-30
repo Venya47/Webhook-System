@@ -16,7 +16,6 @@ export default function AddWebhookPage() {
 
     const payload = {
       name: data.name,
-      target_url: data.target_url,
       method: data.method,
       auth_type: data.auth_type,
       username: data.username,
@@ -46,7 +45,7 @@ export default function AddWebhookPage() {
       <div className="page-header" style={{ marginBottom: 24 }}>
         <div>
           <div className="page-title">New Webhook</div>
-          <div className="page-subtitle">Configure a new HTTP endpoint</div>
+          <div className="page-subtitle">Configure a new webhook</div>
         </div>
       </div>
       <WebhookForm
