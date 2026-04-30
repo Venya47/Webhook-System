@@ -40,8 +40,10 @@ router.get('/', async (req: AuthRequest, res: Response): Promise<void> => {
 router.get('/:id', async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const webhook = await Webhook.findOne({
-      where: { webhook_id: req.params.id, user_id: req.userId },
+      where: { webhook_id: Number(req.params.id), user_id: req.userId },
     });
+    console.log("got the webhook don't worry i am working fine");//-------------
+    console.log(webhook);//----------------------------------------------------
     if (!webhook) {
       res.status(404).json({ message: 'Webhook not found' });
       return;
@@ -86,7 +88,7 @@ router.post('/', async (req: AuthRequest, res: Response): Promise<void> => {
 router.put('/:id', async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const webhook = await Webhook.findOne({
-      where: { webhook_id: req.params.id, user_id: req.userId },
+      where: { webhook_id: Number(req.params.id), user_id: req.userId },
     });
 
     if (!webhook) {
