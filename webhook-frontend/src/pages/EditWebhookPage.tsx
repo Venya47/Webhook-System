@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import WebhookForm from '../components/WebhookForm';
-import { Webhook, WebhookFormData } from '../types';
+import { Webhook, WebhookFormData, OAuthConfig } from '../types';
 import api from '../services/api';
 
 export default function EditWebhookPage() {
@@ -24,7 +24,7 @@ export default function EditWebhookPage() {
       return acc;
     }, {} as Record<string, string>);
 
-    const payload = {
+    const payload: Record<string, unknown> = {
       name: data.name,
       method: data.method,
       auth_type: data.auth_type,
@@ -37,11 +37,47 @@ export default function EditWebhookPage() {
         : null,
     };
 
+    // Include oauth config if auth_type is OAUTH
+    if (data.auth_type === 'OAUTH' && data.oauth) {
+      payload.oauth = data.oauth;
+    }
+
     await api.put(`/webhooks/${id}`, payload);
     navigate(`/webhooks/${id}`);
   };
 
-  const buildInitial = (wh: Webhook): Partial<WebhookFormData> => ({
+  // Build OAuth initial state from oauth_configs returned by backend
+  const buildOAuthInitial = (oauthConfigs: any[]): OAuthConfig => {
+    const access = oauthConfigs.find(c => c.token_type === 'ACCESS');
+    const refresh = oauthConfigs.find(c => c.token_type === 'REFRESH');
+
+    const mapConfig = (c: any) => ({
+      method: c?.method ?? 'POST',
+      auth_type: c?.auth_type ?? 'NONE',
+      auth_config: {
+        username: c?.auth_config?.username ?? '',
+        password: '',   // don't pre-fill secrets
+        token: '',      // don't pre-fill secrets
+      },
+      headers: c?.headers ?? [],
+      payload: c?.payload ?? [],
+      token_key: c?.token_key ?? '',
+      expiry_source: (c?.expiry_source?.toLowerCase() ?? 'response') as 'response' | 'manual',
+      expiry_key: c?.expiry_key ?? '',
+      date_format: c?.date_format ?? 'DD-MM-YYYYTHH:mm:ss',
+      jwt_bound: c?.jwt_bound ?? false,
+      manual_duration: c?.manual_duration?.toString() ?? '1',
+      manual_unit: c?.manual_unit ?? 'HOUR',
+    });
+
+    return {
+      refresh_enabled: !!refresh,
+      access_token: mapConfig(access),
+      refresh_token: mapConfig(refresh),
+    };
+  };
+
+  const buildInitial = (wh: Webhook & { oauth_configs?: any[] }): Partial<WebhookFormData> => ({
     name: wh.name,
     method: wh.method,
     auth_type: wh.auth_type,
@@ -49,10 +85,12 @@ export default function EditWebhookPage() {
       ? Object.entries(wh.headers).map(([key, value]) => ({ key, value }))
       : [],
     payload_schema: Array.isArray(wh.payload_schema) ? wh.payload_schema : [],
-    // Don't pre-fill auth secrets for security
     username: '',
     password: '',
     token: '',
+    oauth: wh.auth_type === 'OAUTH' && wh.oauth_configs?.length
+      ? buildOAuthInitial(wh.oauth_configs)
+      : undefined,
   });
 
   if (loading) {
@@ -89,7 +127,7 @@ export default function EditWebhookPage() {
         </div>
       </div>
       <WebhookForm
-        initial={buildInitial(webhook)}
+        initial={buildInitial(webhook as any)}
         submitLabel="Save Changes"
         onSubmit={handleSubmit}
         onCancel={() => navigate(`/webhooks/${id}`)}

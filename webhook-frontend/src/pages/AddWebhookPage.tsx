@@ -8,13 +8,12 @@ export default function AddWebhookPage() {
   const navigate = useNavigate();
 
   const handleSubmit = async (data: WebhookFormData) => {
-    // Convert headers array to object
     const headersObj = data.headers.reduce((acc, { key, value }) => {
       if (key.trim()) acc[key.trim()] = value;
       return acc;
     }, {} as Record<string, string>);
 
-    const payload = {
+    const payload: Record<string, unknown> = {
       name: data.name,
       method: data.method,
       auth_type: data.auth_type,
@@ -26,6 +25,11 @@ export default function AddWebhookPage() {
         ? data.payload_schema.filter(f => f.key.trim())
         : null,
     };
+
+    // Include oauth config if auth_type is OAUTH
+    if (data.auth_type === 'OAUTH' && data.oauth) {
+      payload.oauth = data.oauth;
+    }
 
     await api.post('/webhooks', payload);
     navigate('/webhooks');

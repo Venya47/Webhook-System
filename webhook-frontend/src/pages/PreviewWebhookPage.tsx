@@ -18,31 +18,28 @@ export default function PreviewWebhookPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-  const fetchData = async () => {
-    try {
-      const wRes = await api.get(`/webhooks/${id}`);
-      setWebhook(wRes.data);
-    } catch (err) {
-      console.error(err);
-      setError("Webhook not found");
+    const fetchData = async () => {
+      try {
+        const wRes = await api.get(`/webhooks/${id}`);
+        setWebhook(wRes.data);
+      } catch (err) {
+        console.error(err);
+        setError('Webhook not found');
+        setLoading(false);
+        return;
+      }
+      try {
+        const aRes = await api.get(`/activity/webhook/${id}`);
+        setActivities(aRes.data);
+      } catch (err) {
+        console.error('Activity failed:', err);
+        setActivities([]);
+      }
       setLoading(false);
-      return;
-    }
+    };
+    fetchData();
+  }, [id]);
 
-    try {
-      const aRes = await api.get(`/activity/webhook/${id}`);
-      setActivities(aRes.data);
-    } catch (err) {
-      console.error("Activity failed:", err);
-      setActivities([]); 
-    }
-
-    setLoading(false);
-  };
-
-  fetchData();
-   }, [id]);
-  
   if (loading) {
     return (
       <div className="main-content" style={{ textAlign: 'center', paddingTop: 80 }}>
@@ -59,9 +56,13 @@ export default function PreviewWebhookPage() {
     );
   }
 
+  const wh = webhook as Webhook & { oauth_configs?: any[] };
   const successCount = activities.filter(a => a.status === 'SUCCESS').length;
   const failureCount = activities.filter(a => a.status === 'FAILURE').length;
   const pendingCount = activities.filter(a => a.status === 'PENDING').length;
+
+  const oauthAccess = wh.oauth_configs?.find((c: any) => c.token_type === 'ACCESS');
+  const oauthRefresh = wh.oauth_configs?.find((c: any) => c.token_type === 'REFRESH');
 
   return (
     <div className="main-content fade-up">
@@ -95,15 +96,9 @@ export default function PreviewWebhookPage() {
       {/* Activity Summary Strip */}
       {activities.length > 0 && (
         <div style={{
-          display: 'flex',
-          gap: 12,
-          marginBottom: 24,
-          padding: '14px 20px',
-          background: 'var(--bg-card)',
-          border: '1px solid var(--border)',
-          borderRadius: 'var(--radius-lg)',
-          alignItems: 'center',
-          flexWrap: 'wrap',
+          display: 'flex', gap: 12, marginBottom: 24, padding: '14px 20px',
+          background: 'var(--bg-card)', border: '1px solid var(--border)',
+          borderRadius: 'var(--radius-lg)', alignItems: 'center', flexWrap: 'wrap',
         }}>
           <span style={{ fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', marginRight: 4 }}>
             ACTIVITY
@@ -130,23 +125,95 @@ export default function PreviewWebhookPage() {
         <div className="preview-grid">
           <div className="preview-section">
             <div className="preview-label">Method</div>
-            <div>
-              <span className={`badge badge-${webhook.method.toLowerCase()}`}>{webhook.method}</span>
-            </div>
+            <span className={`badge badge-${webhook.method.toLowerCase()}`}>{webhook.method}</span>
           </div>
           <div className="preview-section">
             <div className="preview-label">Auth Type</div>
-            <div>
-              <span className={`badge badge-${webhook.auth_type.toLowerCase()}`}>{webhook.auth_type}</span>
-            </div>
+            <span className={`badge badge-${webhook.auth_type.toLowerCase()}`}>{webhook.auth_type}</span>
           </div>
-          <div className="preview-section">
-            <div className="preview-label">Auth Header</div>
-            <div className="preview-value preview-mono" style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
-              {webhook.auth_config?.header || (webhook.auth_type === 'NONE' ? '—' : 'Not configured')}
+          {webhook.auth_type !== 'OAUTH' && (
+            <div className="preview-section">
+              <div className="preview-label">Auth Header</div>
+              <div className="preview-value preview-mono" style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
+                {webhook.auth_config?.header || (webhook.auth_type === 'NONE' ? '—' : 'Not configured')}
+              </div>
             </div>
-          </div>
+          )}
         </div>
+
+        {/* OAuth Config Section */}
+        {webhook.auth_type === 'OAUTH' && oauthAccess && (
+          <>
+            <div className="divider" />
+            {[
+              { label: 'Access Token Configuration', config: oauthAccess },
+              ...(oauthRefresh ? [{ label: 'Refresh Token Configuration', config: oauthRefresh }] : []),
+            ].map(({ label, config }) => (
+              <div key={label} className="preview-section" style={{ marginBottom: 20 }}>
+                <div className="preview-label" style={{ marginBottom: 12 }}>{label}</div>
+                <div style={{
+                  background: 'var(--bg-input)', border: '1px solid var(--border)',
+                  borderRadius: 'var(--radius-lg)', padding: 16,
+                }}>
+                  <div className="preview-grid" style={{ marginBottom: 12 }}>
+                    <div>
+                      <div className="preview-label">Method</div>
+                      <span className={`badge badge-${config.method?.toLowerCase()}`}>{config.method}</span>
+                    </div>
+                    <div>
+                      <div className="preview-label">Auth Type</div>
+                      <span className="badge badge-none">{config.auth_type}</span>
+                    </div>
+                    <div>
+                      <div className="preview-label">Token Key</div>
+                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: 'var(--accent)' }}>
+                        {config.token_key || '—'}
+                      </span>
+                    </div>
+                    <div>
+                      <div className="preview-label">Expiry Source</div>
+                      <span className="badge badge-none">{config.expiry_source}</span>
+                    </div>
+                    {config.expiry_source === 'RESPONSE' && (
+                      <>
+                        <div>
+                          <div className="preview-label">Expiry Key</div>
+                          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 13 }}>{config.expiry_key || '—'}</span>
+                        </div>
+                        <div>
+                          <div className="preview-label">JWT Bound</div>
+                          <span className={`badge ${config.jwt_bound ? 'badge-success' : 'badge-none'}`}>
+                            {config.jwt_bound ? 'Yes' : 'No'}
+                          </span>
+                        </div>
+                      </>
+                    )}
+                    {config.expiry_source === 'MANUAL' && (
+                      <div>
+                        <div className="preview-label">Duration</div>
+                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 13 }}>
+                          {config.manual_duration} {config.manual_unit}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  {config.headers && config.headers.length > 0 && (
+                    <div style={{ marginTop: 8 }}>
+                      <div className="preview-label" style={{ marginBottom: 6 }}>Custom Headers</div>
+                      <div className="code-block">{JSON.stringify(config.headers, null, 2)}</div>
+                    </div>
+                  )}
+                  {config.payload && config.payload.length > 0 && (
+                    <div style={{ marginTop: 8 }}>
+                      <div className="preview-label" style={{ marginBottom: 6 }}>Custom Payload</div>
+                      <div className="code-block">{JSON.stringify(config.payload, null, 2)}</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </>
+        )}
 
         <div className="divider" />
 
@@ -208,15 +275,9 @@ export default function PreviewWebhookPage() {
       {/* Recent Activity Panel */}
       {activities.length > 0 && (
         <div style={{ marginTop: 28 }}>
-          <div style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14,
-          }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
             <div className="form-section-title" style={{ margin: 0 }}>Recent Activity</div>
-            <button
-              className="btn btn-ghost"
-              style={{ fontSize: 11 }}
-              onClick={() => navigate('/activity')}
-            >
+            <button className="btn btn-ghost" style={{ fontSize: 11 }} onClick={() => navigate('/activity')}>
               View All →
             </button>
           </div>
@@ -249,8 +310,7 @@ export default function PreviewWebhookPage() {
                       <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7 }}>
                         <span style={{
                           width: 7, height: 7, borderRadius: '50%',
-                          background: statusColors[a.status].dot,
-                          display: 'inline-block',
+                          background: statusColors[a.status].dot, display: 'inline-block',
                         }} />
                         <span style={{
                           fontSize: 11, fontWeight: 700, fontFamily: 'var(--font-mono)',

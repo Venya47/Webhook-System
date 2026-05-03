@@ -6,7 +6,6 @@ import { sequelize } from './config/database';
 import authRoutes from './routes/auth';
 import webhookRoutes from './routes/webhooks';
 import activityRoutes from './routes/activity';
-import triggerRoutes from './routes/trigger';
 
 dotenv.config();
 
@@ -20,7 +19,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/webhooks', webhookRoutes);
 app.use('/api/activity', activityRoutes);
-app.use('/api/trigger', triggerRoutes);
+
 
 // Health check
 app.get('/health', (_req, res) => {
@@ -30,12 +29,12 @@ app.get('/health', (_req, res) => {
 async function start() {
   try {
     await sequelize.authenticate();
-    console.log('✅ Database connected');
+    console.log('Database connected');
     await sequelize.sync();
-    console.log('✅ Models synced');
-    app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
+    console.log('Models synced');
+    app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
   } catch (err) {
-    console.error('❌ Failed to start:', err);
+    console.error('Failed to start:', err);
     process.exit(1);
   }
 }
